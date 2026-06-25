@@ -76,7 +76,7 @@ export default function About() {
               </div>
               <div>
                 <h3 className="text-xl font-bold text-primary-900">Ash Shaykh, Dr. Zunuraen Jibreel Sahban</h3>
-                <p className="text-sm font-medium text-gold-600 mt-1">PhD Islamic Jurisprudence, Islamic University, Saudi Arabia</p>
+                <p className="text-sm font-medium text-gold-600 mt-1">PhD Islamic Law, Islamic University, Saudi Arabia</p>
                 <p className="mt-4 text-base leading-7 text-gray-600">
                   Dr. Zunuraen Jibreel Sahban founded Ath-Thabaat with a visionary approach to education. His dedication to Islamic scholarship and community development forms the cornerstone of our school's philosophy. Under his guidance, the school continues to produce students who excel academically while remaining steadfast in their faith.
                 </p>
