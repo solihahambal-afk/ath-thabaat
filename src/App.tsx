@@ -15,11 +15,13 @@ import Gallery from './pages/Gallery';
 import News from './pages/News';
 import Contact from './pages/Contact';
 import Portal from './pages/Portal';
+import InstallPrompt from './components/InstallPrompt';
 
 export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <InstallPrompt />
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
