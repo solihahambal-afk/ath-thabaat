@@ -3,15 +3,16 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/authStore';
 import { Lock, Mail } from 'lucide-react';
+import LoadingScreen from '../../components/LoadingScreen';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, initialize } = useAuthStore();
+  const { user, loading: authLoading, initialize } = useAuthStore();
 
   const from = location.state?.from?.pathname || '/admin';
 
@@ -20,15 +21,15 @@ export default function Login() {
   }, [initialize]);
 
   useEffect(() => {
-    if (user) {
+    if (user && !authLoading) {
       navigate(from, { replace: true });
     }
-  }, [user, navigate, from]);
+  }, [user, authLoading, navigate, from]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
+    setIsSubmitting(true);
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -41,10 +42,13 @@ export default function Login() {
       // User will be redirected by the useEffect listening to auth changes
     } catch (err: any) {
       setError(err.message || 'Failed to sign in');
-    } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
+
+  if (authLoading || (isSubmitting && !error)) {
+    return <LoadingScreen message="Authenticating..." />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -135,10 +139,10 @@ export default function Login() {
             <div>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={isSubmitting}
                 className="flex w-full justify-center rounded-md bg-primary-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {loading ? 'Signing in...' : 'Sign in'}
+                {isSubmitting ? 'Signing in...' : 'Sign in'}
               </button>
             </div>
           </form>

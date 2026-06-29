@@ -1,5 +1,6 @@
 import { Navigate, Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
+import LoadingScreen from '../LoadingScreen';
 import { 
   LayoutDashboard, 
   Users, 
@@ -25,11 +26,7 @@ export default function AdminLayout() {
   }, [initialize]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-700"></div>
-      </div>
-    );
+    return <LoadingScreen message="Authenticating..." />;
   }
 
   if (!user) {
