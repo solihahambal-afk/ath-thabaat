@@ -47,7 +47,7 @@ export default function Navbar() {
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
   const [desktopDropdownOpen, setDesktopDropdownOpen] = useState(false);
   const location = useLocation();
-  const { user, role, signOut, initialize } = useAuthStore();
+  const { user, profile, role, signOut, initialize } = useAuthStore();
 
   useEffect(() => {
     initialize();
@@ -73,6 +73,9 @@ export default function Navbar() {
   const toggleExpand = (name: string) => {
     setExpandedItems(prev => ({ ...prev, [name]: !prev[name] }));
   };
+
+  const displayName = profile?.full_name || profile?.username || user?.email?.split('@')[0];
+  const initials = displayName?.charAt(0).toUpperCase();
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-gray-200">
@@ -138,12 +141,16 @@ export default function Navbar() {
                   onClick={() => setDesktopDropdownOpen(!desktopDropdownOpen)}
                   className="flex items-center gap-2 hover:bg-gray-50 rounded-full py-1.5 pl-1.5 pr-3 transition-colors border border-gray-100 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
-                  <div className="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-sm">
-                    {user.email?.charAt(0).toUpperCase()}
+                  <div className="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-sm overflow-hidden">
+                    {profile?.avatar_url ? (
+                      <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                    ) : (
+                      initials
+                    )}
                   </div>
                   <div className="flex flex-col text-left">
                     <span className="text-sm font-semibold text-gray-900 leading-tight">
-                      {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                      {displayName}
                     </span>
                     <span className="text-xs text-gray-500 leading-tight">{role || 'User'}</span>
                   </div>
@@ -168,6 +175,14 @@ export default function Navbar() {
                         >
                           <LayoutDashboard className="h-4 w-4" />
                           Dashboard
+                        </Link>
+                        <Link
+                          to="/admin/profile"
+                          onClick={() => setDesktopDropdownOpen(false)}
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary-600 transition-colors"
+                        >
+                          <User className="h-4 w-4" />
+                          Profile
                         </Link>
                         <Link
                           to="/admin/settings"
@@ -242,12 +257,16 @@ export default function Navbar() {
                         className="flex items-center justify-between w-full p-2 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100"
                       >
                         <div className="flex items-center gap-2 overflow-hidden">
-                          <div className="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold flex-shrink-0 text-xs">
-                            {user.email?.charAt(0).toUpperCase()}
+                          <div className="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold flex-shrink-0 text-xs overflow-hidden">
+                            {profile?.avatar_url ? (
+                              <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                            ) : (
+                              initials
+                            )}
                           </div>
                           <div className="flex flex-col text-left overflow-hidden">
                             <span className="text-sm font-semibold text-gray-900 truncate">
-                              {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                              {displayName}
                             </span>
                             <span className="text-[10px] leading-tight text-gray-500 truncate">{role || 'User'}</span>
                           </div>
@@ -271,6 +290,14 @@ export default function Navbar() {
                               >
                                 <LayoutDashboard className="h-4 w-4" />
                                 Dashboard
+                              </Link>
+                              <Link
+                                to="/admin/profile"
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-white transition-colors"
+                              >
+                                <User className="h-4 w-4" />
+                                Profile
                               </Link>
                               <Link
                                 to="/admin/settings"
@@ -333,7 +360,7 @@ export default function Navbar() {
                               if (!item.subItems) setMobileMenuOpen(false);
                             }}
                             className={cn(
-                              "flex flex-1 items-center gap-3 px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
+                              "flex flex-1 items-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors",
                               isActive
                                 ? "bg-primary-50 text-primary-700"
                                 : "text-gray-700 hover:bg-gray-50 hover:text-primary-600"
@@ -372,7 +399,7 @@ export default function Navbar() {
                                     to={sub.href}
                                     onClick={() => setMobileMenuOpen(false)}
                                     className={cn(
-                                      "block px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
+                                      "block px-3 py-1 rounded-md text-sm font-medium transition-colors",
                                       location.pathname === sub.href
                                         ? "text-primary-700 bg-primary-50"
                                         : "text-gray-600 hover:text-primary-600 hover:bg-gray-50"

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/authStore';
@@ -31,6 +31,12 @@ export default function Login() {
     setError('');
     setIsSubmitting(true);
 
+    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+      setError('Database configuration is missing. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Settings > Environment Variables.');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
@@ -49,6 +55,7 @@ export default function Login() {
   if (authLoading || (isSubmitting && !error)) {
     return <LoadingScreen message="Authenticating..." />;
   }
+
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">

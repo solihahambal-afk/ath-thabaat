@@ -17,7 +17,7 @@ import { useState, useEffect } from 'react';
 import { cn } from '../../lib/utils';
 
 export default function AdminLayout() {
-  const { user, role, loading, signOut, initialize } = useAuthStore();
+  const { user, profile, role, loading, signOut, initialize } = useAuthStore();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -70,6 +70,8 @@ export default function AdminLayout() {
   };
 
   const navItems = getNavItems();
+  const displayName = profile?.full_name || profile?.username || user.email?.split('@')[0];
+  const initials = displayName?.charAt(0).toUpperCase();
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col md:flex-row">
@@ -116,19 +118,23 @@ export default function AdminLayout() {
           })}
         </nav>
 
-        <div className="p-4 border-t border-primary-800 mt-auto absolute bottom-0 w-full">
-          <div className="flex items-center gap-3 mb-4 px-4">
-            <div className="w-8 h-8 rounded-full bg-primary-700 flex items-center justify-center text-sm font-bold">
-              {user.email?.charAt(0).toUpperCase()}
+        <div className="p-4 border-t border-primary-800 mt-auto absolute bottom-0 w-full bg-primary-900">
+          <Link to="/admin/profile" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 mb-4 px-4 hover:bg-primary-800 rounded-lg py-2 transition-colors -mx-2">
+            <div className="w-8 h-8 rounded-full bg-primary-700 flex items-center justify-center text-sm font-bold overflow-hidden flex-shrink-0">
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                initials
+              )}
             </div>
             <div className="overflow-hidden">
-              <p className="text-sm font-medium truncate">{user.email}</p>
+              <p className="text-sm font-medium truncate text-white">{displayName}</p>
               <p className="text-xs text-primary-300 truncate">{role}</p>
             </div>
-          </div>
+          </Link>
           <button
             onClick={() => signOut()}
-            className="flex w-full items-center gap-3 px-4 py-2 text-sm font-medium text-red-300 hover:text-red-200 hover:bg-primary-800 rounded-lg transition-colors"
+            className="flex w-full items-center gap-3 px-4 py-2 text-sm font-medium text-red-300 hover:text-red-200 hover:bg-primary-800 rounded-lg transition-colors -mx-2"
           >
             <LogOut className="w-5 h-5" />
             Sign Out

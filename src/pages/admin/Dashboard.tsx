@@ -1,7 +1,8 @@
 import { useAuthStore } from '../../store/authStore';
 
 export default function Dashboard() {
-  const { user, role } = useAuthStore();
+  const { user, profile, role } = useAuthStore();
+  const displayName = profile?.full_name || profile?.username || user?.email?.split('@')[0];
 
   return (
     <div className="space-y-6">
@@ -10,7 +11,7 @@ export default function Dashboard() {
           Dashboard
         </h2>
         <p className="mt-2 max-w-4xl text-sm text-gray-500">
-          Welcome back, {user?.email}. Your current role is <span className="font-semibold text-primary-700">{role}</span>.
+          Welcome back, {displayName}. Your current role is <span className="font-semibold text-primary-700">{role}</span>.
         </p>
       </div>
 

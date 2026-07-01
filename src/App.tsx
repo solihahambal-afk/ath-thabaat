@@ -8,6 +8,7 @@ import ScrollToTop from './components/ScrollToTop';
 import Layout from './components/layout/Layout';
 import AdminLayout from './components/layout/AdminLayout';
 import GlobalLoader from './components/GlobalLoader';
+import BackButton from './components/BackButton';
 import Home from './pages/Home';
 import About from './pages/About';
 import Academics from './pages/Academics';
@@ -20,6 +21,7 @@ import Portal from './pages/Portal';
 import AdminLogin from './pages/admin/Login';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminUsers from './pages/admin/Users';
+import AdminProfile from './pages/admin/Profile';
 import InstallPrompt from './components/InstallPrompt';
 
 export default function App() {
@@ -28,6 +30,7 @@ export default function App() {
       <GlobalLoader>
         <ScrollToTop />
         <InstallPrompt />
+        <BackButton />
         <Routes>
           <Route path="/" element={<Layout />}>
              <Route index element={<Home />} />
@@ -45,6 +48,7 @@ export default function App() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="users" element={<AdminUsers />} />
+            <Route path="profile" element={<AdminProfile />} />
             <Route path="*" element={<div className="p-6">Module coming soon</div>} />
           </Route>
         </Routes>
