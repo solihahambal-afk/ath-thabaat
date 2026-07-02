@@ -22,6 +22,7 @@ import AdminLogin from './pages/admin/Login';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminUsers from './pages/admin/Users';
 import AdminProfile from './pages/admin/Profile';
+import ActivityLogs from './pages/admin/ActivityLogs';
 import InstallPrompt from './components/InstallPrompt';
 
 export default function App() {
@@ -48,6 +49,7 @@ export default function App() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="users" element={<AdminUsers />} />
+            <Route path="activity-logs" element={<ActivityLogs />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="*" element={<div className="p-6">Module coming soon</div>} />
           </Route>

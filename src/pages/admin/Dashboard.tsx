@@ -11,7 +11,7 @@ export default function Dashboard() {
           Dashboard
         </h2>
         <p className="mt-2 max-w-4xl text-sm text-gray-500">
-          Welcome back, {displayName}. Your current role is <span className="font-semibold text-primary-700">{role}</span>.
+          Welcome back, {displayName}. Your current role is <span className="font-semibold text-primary-700">{role || 'User'}</span>.
         </p>
       </div>
 

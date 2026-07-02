@@ -11,7 +11,8 @@ import {
   Settings, 
   LogOut,
   Menu,
-  X
+  X,
+  Activity
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '../../lib/utils';
@@ -42,6 +43,7 @@ export default function AdminLayout() {
       return [
         ...baseItems,
         { name: 'Users', href: '/admin/users', icon: Users },
+        { name: 'Activity Logs', href: '/admin/activity-logs', icon: Activity },
         { name: 'News', href: '/admin/news', icon: FileText },
         { name: 'Gallery', href: '/admin/gallery', icon: ImageIcon },
         { name: 'Events', href: '/admin/events', icon: Calendar },
@@ -129,7 +131,7 @@ export default function AdminLayout() {
             </div>
             <div className="overflow-hidden">
               <p className="text-sm font-medium truncate text-white">{displayName}</p>
-              <p className="text-xs text-primary-300 truncate">{role}</p>
+              <p className="text-xs text-primary-300 truncate">{role || 'User'}</p>
             </div>
           </Link>
           <button
