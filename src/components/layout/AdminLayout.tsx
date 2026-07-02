@@ -44,10 +44,13 @@ export default function AdminLayout() {
         ...baseItems,
         { name: 'Users', href: '/admin/users', icon: Users },
         { name: 'Activity Logs', href: '/admin/activity-logs', icon: Activity },
+        { name: 'Courses', href: '/admin/courses', icon: FileText },
+        { name: 'Classes', href: '/admin/classes', icon: Users },
+        { name: 'Quizzes & CBT', href: '/admin/exams', icon: FileText },
+        { name: 'Website Config', href: '/admin/website', icon: ImageIcon },
         { name: 'News', href: '/admin/news', icon: FileText },
         { name: 'Gallery', href: '/admin/gallery', icon: ImageIcon },
         { name: 'Events', href: '/admin/events', icon: Calendar },
-        { name: 'Staff', href: '/admin/staff', icon: UserCircle },
         { name: 'Settings', href: '/admin/settings', icon: Settings },
       ];
     }
@@ -55,19 +58,71 @@ export default function AdminLayout() {
     if (role === 'Administrator') {
       return [
         ...baseItems,
-        { name: 'News', href: '/admin/news', icon: FileText },
-        { name: 'Gallery', href: '/admin/gallery', icon: ImageIcon },
-        { name: 'Events', href: '/admin/events', icon: Calendar },
-        { name: 'Staff', href: '/admin/staff', icon: UserCircle },
+        { name: 'Students', href: '/admin/students', icon: Users },
+        { name: 'Teachers', href: '/admin/teachers', icon: Users },
+        { name: 'Classes', href: '/admin/classes', icon: Users },
+        { name: 'Attendance', href: '/admin/attendance', icon: Activity },
+        { name: 'Timetables', href: '/admin/timetables', icon: Calendar },
+        { name: 'Announcements', href: '/admin/announcements', icon: FileText },
+        { name: 'Reports', href: '/admin/reports', icon: FileText },
       ];
     }
 
-    // Editor
+    if (role === 'Editor') {
+      return [
+        ...baseItems,
+        { name: 'Homepage', href: '/admin/homepage', icon: LayoutDashboard },
+        { name: 'Website Pages', href: '/admin/pages', icon: FileText },
+        { name: 'News', href: '/admin/news', icon: FileText },
+        { name: 'Gallery', href: '/admin/gallery', icon: ImageIcon },
+        { name: 'Announcements', href: '/admin/announcements', icon: FileText },
+        { name: 'Events', href: '/admin/events', icon: Calendar },
+      ];
+    }
+
+    if (role === 'Teacher / Instructor') {
+      return [
+        ...baseItems,
+        { name: 'My Classes', href: '/admin/my-classes', icon: Users },
+        { name: 'My Courses', href: '/admin/my-courses', icon: FileText },
+        { name: 'Quizzes', href: '/admin/quizzes', icon: FileText },
+        { name: 'CBT Exams', href: '/admin/cbt', icon: FileText },
+        { name: 'Assignments', href: '/admin/assignments', icon: FileText },
+        { name: 'Results', href: '/admin/results', icon: Activity },
+      ];
+    }
+
+    if (role === 'Student') {
+      return [
+        ...baseItems,
+        { name: 'My Courses', href: '/admin/student-courses', icon: FileText },
+        { name: 'My Classes', href: '/admin/student-classes', icon: Users },
+        { name: 'Assignments', href: '/admin/student-assignments', icon: FileText },
+        { name: 'Quizzes & CBT', href: '/admin/student-exams', icon: FileText },
+        { name: 'Results', href: '/admin/student-results', icon: Activity },
+        { name: 'My Profile', href: '/admin/profile', icon: UserCircle },
+      ];
+    }
+
+    if (role === 'Parent') {
+      return [
+        ...baseItems,
+        { name: 'Student Progress', href: '/admin/student-progress', icon: Activity },
+        { name: 'Messages', href: '/admin/messages', icon: FileText },
+        { name: 'My Profile', href: '/admin/profile', icon: UserCircle },
+      ];
+    }
+
+    if (role === 'Pending User') {
+      return [
+        ...baseItems,
+        { name: 'My Profile', href: '/admin/profile', icon: UserCircle },
+      ];
+    }
+
     return [
       ...baseItems,
-      { name: 'My News', href: '/admin/news', icon: FileText },
-      { name: 'Gallery', href: '/admin/gallery', icon: ImageIcon },
-      { name: 'Events', href: '/admin/events', icon: Calendar },
+      { name: 'My Profile', href: '/admin/profile', icon: UserCircle },
     ];
   };
 

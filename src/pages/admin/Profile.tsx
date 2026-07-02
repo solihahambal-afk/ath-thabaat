@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { supabase } from '../../lib/supabase';
 import { User as UserIcon, Mail, Phone, Shield, Camera, Lock } from 'lucide-react';
@@ -11,8 +11,14 @@ export default function Profile() {
 
   const [formData, setFormData] = useState({
     username: '',
-    full_name: '',
+    first_name: '',
+    middle_name: '',
+    last_name: '',
     phone: '',
+    address: '',
+    date_of_birth: '',
+    gender: '',
+    bio: '',
   });
 
   const [passwordData, setPasswordData] = useState({
@@ -24,8 +30,14 @@ export default function Profile() {
     if (profile) {
       setFormData({
         username: profile.username || '',
-        full_name: profile.full_name || '',
+        first_name: profile.first_name || '',
+        middle_name: profile.middle_name || '',
+        last_name: profile.last_name || '',
         phone: profile.phone || '',
+        address: profile.address || '',
+        date_of_birth: profile.date_of_birth || '',
+        gender: profile.gender || '',
+        bio: profile.bio || '',
       });
     }
   }, [profile]);
@@ -65,11 +77,19 @@ export default function Profile() {
       }
 
       // Update profile
+      const full_name = `${formData.first_name} ${formData.last_name}`.trim();
       const updates = {
         id: user.id,
         username: formData.username,
-        full_name: formData.full_name,
+        first_name: formData.first_name,
+        middle_name: formData.middle_name,
+        last_name: formData.last_name,
+        full_name,
         phone: formData.phone,
+        address: formData.address,
+        date_of_birth: formData.date_of_birth,
+        gender: formData.gender,
+        bio: formData.bio,
         updated_at: new Date().toISOString(),
       };
 
@@ -188,14 +208,92 @@ export default function Profile() {
             </div>
 
             <div className="sm:col-span-2">
-              <label htmlFor="full_name" className="block text-sm font-medium text-gray-700">Full Name</label>
+              <label htmlFor="first_name" className="block text-sm font-medium text-gray-700">First Name</label>
               <input
                 type="text"
-                name="full_name"
-                id="full_name"
-                value={formData.full_name}
-                onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                name="first_name"
+                id="first_name"
+                value={formData.first_name}
+                onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="middle_name" className="block text-sm font-medium text-gray-700">Middle Name <span className="text-gray-400 text-xs font-normal">(Optional)</span></label>
+              <input
+                type="text"
+                name="middle_name"
+                id="middle_name"
+                value={formData.middle_name}
+                onChange={(e) => setFormData({ ...formData, middle_name: e.target.value })}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="last_name" className="block text-sm font-medium text-gray-700">Last Name</label>
+              <input
+                type="text"
+                name="last_name"
+                id="last_name"
+                value={formData.last_name}
+                onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="date_of_birth" className="block text-sm font-medium text-gray-700">Date of Birth</label>
+              <input
+                type="date"
+                name="date_of_birth"
+                id="date_of_birth"
+                value={formData.date_of_birth}
+                onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="gender" className="block text-sm font-medium text-gray-700">Gender</label>
+              <select
+                name="gender"
+                id="gender"
+                value={formData.gender}
+                onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+              >
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
+            </div>
+
+            <div className="sm:col-span-2">
+              <label htmlFor="address" className="block text-sm font-medium text-gray-700">Address</label>
+              <input
+                type="text"
+                name="address"
+                id="address"
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label htmlFor="bio" className="block text-sm font-medium text-gray-700">Bio</label>
+              <textarea
+                name="bio"
+                id="bio"
+                rows={3}
+                value={formData.bio}
+                onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                placeholder="A brief description about yourself"
               />
             </div>
 

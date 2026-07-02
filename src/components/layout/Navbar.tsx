@@ -209,13 +209,21 @@ export default function Navbar() {
                 </AnimatePresence>
               </div>
             ) : (
-              <Link
-                to="/admin/login"
-                className="flex items-center gap-2 rounded-lg bg-primary-700 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 transition-colors"
-              >
-                <LogIn className="h-4 w-4" />
-                Login
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/admin/login"
+                  className="flex items-center gap-2 rounded-lg border border-primary-600 px-4 py-2 text-sm font-semibold text-primary-700 shadow-sm hover:bg-primary-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 transition-colors"
+                >
+                  <LogIn className="h-4 w-4" />
+                  Login
+                </Link>
+                <Link
+                  to="/admin/register"
+                  className="flex items-center gap-2 rounded-lg bg-primary-700 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 transition-colors"
+                >
+                  Sign Up
+                </Link>
+              </div>
             )}
           </div>
         </div>
@@ -320,14 +328,23 @@ export default function Navbar() {
                       </AnimatePresence>
                     </div>
                   ) : (
-                    <Link
-                      to="/admin/login"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center justify-center gap-2 w-full py-2 px-4 bg-primary-700 text-white rounded-lg text-sm font-semibold shadow hover:bg-primary-600 transition-colors"
-                    >
-                      <LogIn className="h-4 w-4" />
-                      Login
-                    </Link>
+                    <div className="flex flex-col gap-2 w-full">
+                      <Link
+                        to="/admin/login"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center justify-center gap-2 w-full py-2 px-4 border border-primary-600 text-primary-700 rounded-lg text-sm font-semibold shadow-sm hover:bg-primary-50 transition-colors"
+                      >
+                        <LogIn className="h-4 w-4" />
+                        Login
+                      </Link>
+                      <Link
+                        to="/admin/register"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center justify-center gap-2 w-full py-2 px-4 bg-primary-700 text-white rounded-lg text-sm font-semibold shadow hover:bg-primary-600 transition-colors"
+                      >
+                        Sign Up
+                      </Link>
+                    </div>
                   )}
                 </div>
               </div>

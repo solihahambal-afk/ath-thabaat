@@ -19,6 +19,9 @@ import News from './pages/News';
 import Contact from './pages/Contact';
 import Portal from './pages/Portal';
 import AdminLogin from './pages/admin/Login';
+import AdminRegister from './pages/admin/Register';
+import AdminForgotPassword from './pages/admin/ForgotPassword';
+import AdminResetPassword from './pages/admin/ResetPassword';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminUsers from './pages/admin/Users';
 import AdminProfile from './pages/admin/Profile';
@@ -46,6 +49,9 @@ export default function App() {
           </Route>
           
           <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/register" element={<AdminRegister />} />
+          <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
+          <Route path="/admin/reset-password" element={<AdminResetPassword />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="users" element={<AdminUsers />} />

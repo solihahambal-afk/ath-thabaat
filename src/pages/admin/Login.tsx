@@ -47,7 +47,8 @@ export default function Login() {
       
       // User will be redirected by the useEffect listening to auth changes
     } catch (err: any) {
-      setError(err.message || 'Failed to sign in');
+      const errorMessage = err?.message || (typeof err === 'string' ? err : 'Failed to sign in. Please check your credentials and try again.');
+      setError(errorMessage === '{}' ? 'Invalid login credentials' : errorMessage);
       setIsSubmitting(false);
     }
   };
@@ -68,8 +69,14 @@ export default function Login() {
           />
         </div>
         <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900 font-serif">
-          Admin Portal Login
+          Portal Login
         </h2>
+        <p className="mt-2 text-center text-sm text-gray-600">
+          Don't have an account?{' '}
+          <a href="/admin/register" className="font-semibold text-primary-600 hover:text-primary-500">
+            Sign up
+          </a>
+        </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
@@ -137,7 +144,7 @@ export default function Login() {
               </div>
 
               <div className="text-sm leading-6">
-                <a href="#" className="font-semibold text-primary-600 hover:text-primary-500">
+                <a href="/admin/forgot-password" className="font-semibold text-primary-600 hover:text-primary-500">
                   Forgot password?
                 </a>
               </div>

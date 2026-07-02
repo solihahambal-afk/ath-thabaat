@@ -28,12 +28,58 @@ export default function Users() {
   // Search & Filter
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+
+  // Full Edit Modal
+  const [editingUser, setEditingUser] = useState<Profile | null>(null);
+  const [editFormData, setEditFormData] = useState({
+    username: '',
+    full_name: '',
+    email: '',
+  });
+
+  const handleOpenEditModal = (user: Profile) => {
+    setEditingUser(user);
+    setEditFormData({
+      username: user.username || '',
+      full_name: user.full_name || '',
+      email: user.email || '',
+    });
+  };
+
+  const handleSaveUserDetails = async () => {
+    if (!editingUser) return;
+    try {
+      setLoading(true);
+      setMessage(null);
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          username: editFormData.username,
+          full_name: editFormData.full_name,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', editingUser.id);
+        
+      if (error) throw error;
+      
+      setUsers(users.map(u => u.id === editingUser.id ? { ...u, username: editFormData.username, full_name: editFormData.full_name } : u));
+      setEditingUser(null);
+      setMessage({ type: 'success', text: 'User details updated successfully.' });
+      logActivity('User Update', `Updated details for user ID: ${editingUser.id}.`);
+    } catch (error: any) {
+      console.error('Error updating user:', error);
+      setMessage({ type: 'error', text: error.message || 'Failed to update user details.' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Transfer Ownership
   const [transferringId, setTransferringId] = useState<string | null>(null);
   const [passwordConfirm, setPasswordConfirm] = useState('');
 
-  const roles = ['Super Admin', 'Administrator', 'Editor', 'User', 'Parent', 'Staff'];
+  const roles = ['Super Admin', 'Administrator', 'Editor', 'Teacher / Instructor', 'Student', 'Parent', 'Pending User'];
 
   useEffect(() => {
     fetchUsers();
@@ -144,8 +190,9 @@ export default function Users() {
   const filteredUsers = users.filter(u => {
     const matchesSearch = (u.full_name || u.username || u.email || '').toLowerCase().includes(searchQuery.toLowerCase());
     const matchesRole = roleFilter ? u.role === roleFilter : true;
+    const matchesStatus = statusFilter ? (u.status || 'Active') === statusFilter : true;
     const isNotDeleted = u.status !== 'Deleted';
-    return matchesSearch && matchesRole && isNotDeleted;
+    return matchesSearch && matchesRole && matchesStatus && isNotDeleted;
   });
 
   if (role !== 'Super Admin') {
@@ -203,6 +250,21 @@ export default function Users() {
               ))}
             </select>
           </div>
+          <div className="relative w-full sm:w-48">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Filter className="h-4 w-4 text-gray-400" />
+            </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="block w-full rounded-md border-0 py-1.5 pl-10 pr-3 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-primary-600 sm:text-sm sm:leading-6"
+            >
+              <option value="">All Statuses</option>
+              <option value="Active">Active</option>
+              <option value="Pending">Pending</option>
+              <option value="Suspended">Suspended</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -226,7 +288,7 @@ export default function Users() {
                 <tr key={u.id} className={u.status === 'Suspended' ? 'bg-gray-50' : ''}>
                   <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                     <div className="flex items-center">
-                      <div className="h-10 w-10 flex-shrink-0">
+                      <div className="h-10 w-10 flex-shrink-0 cursor-pointer" onClick={() => handleOpenEditModal(u)}>
                         <div className={`h-10 w-10 rounded-full flex items-center justify-center font-bold ${
                           u.status === 'Suspended' ? 'bg-gray-200 text-gray-500' : 'bg-primary-100 text-primary-700'
                         }`}>
@@ -234,8 +296,9 @@ export default function Users() {
                         </div>
                       </div>
                       <div className="ml-4">
-                        <div className="font-medium text-gray-900">{u.full_name || u.username || 'Unnamed User'}</div>
+                        <div className="font-medium text-gray-900 cursor-pointer hover:text-primary-600" onClick={() => handleOpenEditModal(u)}>{u.full_name || u.username || 'Unnamed User'}</div>
                         <div className="text-gray-500">@{u.username}</div>
+                        <div className="text-primary-600 text-xs font-semibold mt-0.5">{u.role || 'User'}</div>
                         {u.last_login && <div className="text-xs text-gray-400 mt-0.5">Last login: {new Date(u.last_login).toLocaleDateString()}</div>}
                       </div>
                     </div>
@@ -270,7 +333,9 @@ export default function Users() {
                   </td>
                   <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                     <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
-                      u.status === 'Suspended' ? 'bg-red-50 text-red-700 ring-red-600/10' : 'bg-green-50 text-green-700 ring-green-600/10'
+                      u.status === 'Suspended' ? 'bg-red-50 text-red-700 ring-red-600/10' :
+                      u.status === 'Pending' ? 'bg-yellow-50 text-yellow-700 ring-yellow-600/10' :
+                      'bg-green-50 text-green-700 ring-green-600/10'
                     }`}>
                       {u.status || 'Active'}
                     </span>
@@ -299,11 +364,14 @@ export default function Users() {
                         </div>
                       ) : (
                         <div className="flex items-center justify-end gap-3">
+                          {u.status === 'Pending' && (
+                            <button onClick={() => handleUpdateStatus(u.id, 'Active')} className="text-blue-600 hover:text-blue-900" title="Approve"><CheckCircle className="h-4 w-4" /></button>
+                          )}
                           {u.status === 'Suspended' ? (
                             <button onClick={() => handleUpdateStatus(u.id, 'Active')} className="text-green-600 hover:text-green-900" title="Activate"><CheckCircle className="h-4 w-4" /></button>
-                          ) : (
+                          ) : u.status !== 'Pending' ? (
                             <button onClick={() => handleUpdateStatus(u.id, 'Suspended')} className="text-orange-600 hover:text-orange-900" title="Suspend"><Ban className="h-4 w-4" /></button>
-                          )}
+                          ) : null}
                           <button onClick={() => { setEditingId(u.id); setSelectedRole(u.role || 'User'); }} className="text-primary-600 hover:text-primary-900" title="Edit Role"><Edit2 className="h-4 w-4" /></button>
                           {u.role === 'Administrator' && (
                             <button onClick={() => setTransferringId(u.id)} className="text-purple-600 hover:text-purple-900" title="Transfer Super Admin"><Key className="h-4 w-4" /></button>
@@ -328,6 +396,86 @@ export default function Users() {
           </table>
         </div>
       </div>
+
+      {/* Edit User Details Modal */}
+      {editingUser && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+              <h3 className="text-lg font-medium text-gray-900 flex items-center gap-2">
+                <UserIcon className="w-5 h-5 text-gray-500" />
+                Edit User Details
+              </h3>
+              <button onClick={() => setEditingUser(null)} className="text-gray-400 hover:text-gray-500">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <div className="px-6 py-5 space-y-4">
+              <div className="flex items-center gap-4 mb-2">
+                <div className="h-12 w-12 rounded-full bg-primary-100 flex items-center justify-center font-bold text-primary-700 text-lg">
+                  {(editingUser.full_name || editingUser.username || '?').charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-gray-900">{editingUser.full_name || 'Unnamed User'}</div>
+                  <div className="text-primary-600 text-xs font-semibold">{editingUser.role || 'User'}</div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                <div className="relative rounded-md shadow-sm">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                    <span className="text-gray-500 sm:text-sm">@</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={editFormData.username}
+                    onChange={(e) => setEditFormData({...editFormData, username: e.target.value})}
+                    className="block w-full rounded-md border-0 py-1.5 pl-8 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                <input
+                  type="text"
+                  value={editFormData.full_name}
+                  onChange={(e) => setEditFormData({...editFormData, full_name: e.target.value})}
+                  className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email (Read-only)</label>
+                <input
+                  type="email"
+                  value={editFormData.email}
+                  disabled
+                  className="block w-full rounded-md border-0 py-1.5 px-3 bg-gray-50 text-gray-500 ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6"
+                />
+                <p className="text-xs text-gray-500 mt-1">Email cannot be changed directly.</p>
+              </div>
+            </div>
+
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3 bg-gray-50">
+              <button
+                onClick={() => setEditingUser(null)}
+                className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveUserDetails}
+                className="rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

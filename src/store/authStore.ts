@@ -4,12 +4,20 @@ import { supabase } from '../lib/supabase';
 
 export interface Profile {
   id: string;
+  first_name?: string;
+  middle_name?: string;
+  last_name?: string;
   full_name?: string;
   username?: string;
   email?: string;
   avatar_url?: string;
   phone?: string;
+  address?: string;
+  date_of_birth?: string;
+  gender?: string;
+  bio?: string;
   role?: string;
+  status?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -84,7 +92,8 @@ export const useAuthStore = create<AuthState>((set) => ({
                 id: session.user.id,
                 email: email,
                 username: username,
-                role: 'User'
+                role: 'Pending User',
+                status: 'Pending'
             };
             const { data: insertedProfile, error: insertError } = await supabase.from('profiles').insert([newProfile]).select().single();
             if (!insertError) {
@@ -119,7 +128,8 @@ export const useAuthStore = create<AuthState>((set) => ({
                 id: session.user.id,
                 email: email,
                 username: username,
-                role: 'User'
+                role: 'Pending User',
+                status: 'Pending'
             };
             const { data: insertedProfile, error: insertError } = await supabase.from('profiles').insert([newProfile]).select().single();
             if (!insertError) {
