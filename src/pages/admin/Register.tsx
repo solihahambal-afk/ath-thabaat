@@ -108,7 +108,7 @@ export default function Register() {
           Create Account
         </h2>
         <p className="mt-2 text-center text-sm text-neutral-600">
-          Register for the admin portal
+          Register for the Ath-Thabaat portal
         </p>
       </div>
 

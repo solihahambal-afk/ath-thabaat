@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Lock, GraduationCap } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Portal() {
@@ -11,9 +11,7 @@ export default function Portal() {
         transition={{ duration: 0.5 }}
         className="text-center max-w-md w-full bg-white p-12 rounded-3xl shadow-sm ring-1 ring-gray-200"
       >
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary-100 mb-8">
-          <GraduationCap className="h-10 w-10 text-primary-700" aria-hidden="true" />
-        </div>
+        <img src="/logo.jpg" alt="School Logo" className="w-20 h-20 rounded-full mx-auto mb-8 object-cover" />
         
         <h1 className="mt-4 text-3xl font-bold tracking-tight text-primary-900 sm:text-4xl font-serif">Parent/Student Portal</h1>
         <p className="mt-6 text-base leading-7 text-gray-600 mb-8">

@@ -66,7 +66,7 @@ export default function Login() {
           </div>
         </div>
         <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-neutral-900">
-          Admin Portal
+          Ath-Thabaat Portal
         </h2>
         <p className="mt-2 text-center text-sm text-neutral-600">
           Sign in to access the dashboard
@@ -96,7 +96,7 @@ export default function Login() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="block w-full pl-10 pr-3 py-3 border border-neutral-200 rounded-xl focus:ring-neutral-900 focus:border-neutral-900 sm:text-sm transition-colors bg-neutral-50 focus:bg-white"
-                  placeholder="admin@example.com"
+                  placeholder="user@example.com"
                 />
               </div>
             </div>

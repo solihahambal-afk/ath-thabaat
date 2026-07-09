@@ -137,7 +137,7 @@ export default function AdminLayout() {
       <div className="md:hidden flex items-center justify-between bg-primary-900 text-white p-4">
         <div className="font-serif font-bold text-lg flex items-center gap-2">
           <img src="/logo.jpg" alt="Logo" className="w-8 h-8 rounded-full" />
-          Ath-Thabaat Admin
+          Ath-Thabaat Portal
         </div>
         <button onClick={() => setSidebarOpen(!sidebarOpen)}>
           {sidebarOpen ? <X /> : <Menu />}
@@ -151,7 +151,7 @@ export default function AdminLayout() {
       )}>
         <div className="p-6 hidden md:flex items-center gap-3">
           <img src="/logo.jpg" alt="Logo" className="w-10 h-10 rounded-full" />
-          <h1 className="text-xl font-serif font-bold tracking-wider">Admin</h1>
+          <h1 className="text-xl font-serif font-bold tracking-wider">Portal</h1>
         </div>
         
         <nav className="mt-6 flex-1 px-4 space-y-2">
