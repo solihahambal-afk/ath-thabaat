@@ -26,14 +26,31 @@ export default function Login() {
       if (error) throw error;
       // User will be redirected by the useEffect listening to auth changes
     } catch (err: any) {
+      console.error('Login error:', err);
       let errorMessage = 'Failed to sign in. Please check your credentials and try again.';
-      if (err.message) {
+      if (err?.message && err.message !== '{}') {
         if (err.message === 'Failed to fetch') {
-          errorMessage = 'Unable to connect to the server. Please check if Supabase is properly configured in the Settings menu.';
+          errorMessage = 'Unable to connect to the server. Please check your connection.';
         } else {
           errorMessage = err.message;
         }
+      } else if (err?.msg) {
+        errorMessage = err.msg;
+      } else if (err?.error_description) {
+        errorMessage = err.error_description;
+      } else if (typeof err === 'string' && err !== '{}') {
+        errorMessage = err;
+      } else if (err && typeof err === 'object') {
+        const strErr = JSON.stringify(err);
+        if (strErr !== '{}') {
+          errorMessage = `Error details: ${strErr}`;
+        }
       }
+      
+      if (errorMessage === '{}') {
+        errorMessage = 'An unexpected database error occurred during login. Please try again or contact support.';
+      }
+      
       setError(errorMessage);
     } finally {
         setIsSubmitting(false);

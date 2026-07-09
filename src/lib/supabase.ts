@@ -19,7 +19,7 @@ export const supabase = createClient(
       fetch: (input: RequestInfo | URL, init?: RequestInit) => {
         return fetch(input, init).catch(err => {
           if (err instanceof TypeError && err.message === 'Failed to fetch') {
-            return Promise.reject(new Error("Unable to connect to Supabase. Please verify your VITE_SUPABASE_URL in the Settings menu, or ensure your Supabase project is active and accessible."));
+            return Promise.reject(new Error("Unable to connect to Supabase. Please check your internet connection, or try disabling your AdBlocker/VPN."));
           }
           return Promise.reject(err);
         });

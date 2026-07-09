@@ -64,14 +64,32 @@ export default function Register() {
       setPassword('');
       setConfirmPassword('');
     } catch (err: any) {
-      let errorMessage = 'Failed to sign up.';
-      if (err.message) {
+      console.error('Signup error:', err);
+      let errorMessage = 'Failed to sign up. Please try again.';
+      
+      if (err?.message && err.message !== '{}') {
         if (err.message === 'Failed to fetch') {
-          errorMessage = 'Unable to connect to the server. Please check if Supabase is properly configured in the Settings menu.';
+          errorMessage = 'Unable to connect to the server. Please check your connection.';
         } else {
           errorMessage = err.message;
         }
+      } else if (err?.msg) {
+        errorMessage = err.msg;
+      } else if (err?.error_description) {
+        errorMessage = err.error_description;
+      } else if (typeof err === 'string' && err !== '{}') {
+        errorMessage = err;
+      } else if (err && typeof err === 'object') {
+        const strErr = JSON.stringify(err);
+        if (strErr !== '{}') {
+          errorMessage = `Error details: ${strErr}`;
+        }
       }
+      
+      if (errorMessage === '{}') {
+        errorMessage = 'An unexpected database error occurred during signup. Please try again or contact support.';
+      }
+      
       setError(errorMessage);
     } finally {
       setIsSubmitting(false);

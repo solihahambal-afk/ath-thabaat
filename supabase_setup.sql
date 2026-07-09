@@ -128,3 +128,5 @@ CREATE POLICY "Super Admins can view all logs" ON public.activity_logs
             SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'Super Admin'
         )
     );
+ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_role_check;
+ALTER TABLE public.profiles ADD CONSTRAINT profiles_role_check CHECK (role IN ('Super Admin', 'Administrator', 'Editor', 'Teacher / Instructor', 'Student', 'Parent', 'Pending User', 'Pending'));
