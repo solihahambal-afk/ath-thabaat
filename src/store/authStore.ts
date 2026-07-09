@@ -1,151 +1,109 @@
 import { create } from 'zustand';
-import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import { User } from '@supabase/supabase-js';
 
-export interface Profile {
+export type Profile = {
   id: string;
-  first_name?: string;
-  middle_name?: string;
-  last_name?: string;
-  full_name?: string;
-  username?: string;
-  email?: string;
-  avatar_url?: string;
-  phone?: string;
-  address?: string;
-  date_of_birth?: string;
-  gender?: string;
-  bio?: string;
-  role?: string;
-  status?: string;
+  first_name: string | null;
+  middle_name: string | null;
+  last_name: string | null;
+  full_name: string | null;
+  username: string | null;
+  email: string;
+  avatar_url: string | null;
+  phone: string | null;
+  address: string | null;
+  date_of_birth: string | null;
+  gender: string | null;
+  bio: string | null;
+  role: string;
+  status: string;
   created_at?: string;
   updated_at?: string;
-}
+};
 
 interface AuthState {
   user: User | null;
-  session: Session | null;
-  role: string | null;
   profile: Profile | null;
   loading: boolean;
+  initialized: boolean;
   setUser: (user: User | null) => void;
-  setSession: (session: Session | null) => void;
-  setRole: (role: string | null) => void;
   setProfile: (profile: Profile | null) => void;
-  fetchUserRole: (userId: string) => Promise<void>;
-  initialize: () => Promise<void>;
+  fetchProfile: (user: User) => Promise<void>;
   signOut: () => Promise<void>;
+  initialize: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
-  session: null,
-  role: null,
   profile: null,
   loading: true,
+  initialized: false,
+
   setUser: (user) => set({ user }),
-  setSession: (session) => set({ session }),
-  setRole: (role) => set({ role }),
   setProfile: (profile) => set({ profile }),
-  fetchUserRole: async (userId: string) => {
+
+  fetchProfile: async (user: User) => {
     try {
-      const { data, error } = await supabase
+      const { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', userId)
-        .maybeSingle();
-      
-      if (data && !error) {
-        set({ role: data.role, profile: data });
-      } else {
-        set({ role: null, profile: null });
-      }
-    } catch (err) {
-      console.error('Error fetching user profile:', err);
-      set({ role: null, profile: null });
-    }
-  },
-  initialize: async () => {
-    try {
-      if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-        console.warn('Skipping auth initialization: Supabase credentials missing.');
-        set({ loading: false });
-        return;
-      }
-
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      if (session) {
-        set({ session, user: session.user });
+        .eq('id', user.id)
+        .single();
         
-        let { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .maybeSingle();
-          
-        if (!profile && session.user.email) {
-            // Auto generate profile
-            const email = session.user.email;
-            const username = email.split('@')[0];
-            const newProfile = {
-                id: session.user.id,
-                email: email,
-                username: username,
-                role: 'Pending User',
-                status: 'Pending'
-            };
-            const { data: insertedProfile, error: insertError } = await supabase.from('profiles').insert([newProfile]).select().single();
-            if (!insertError) {
-                profile = insertedProfile;
-            }
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // Profile not found, this is fine, might be first login
+          set({ profile: null });
+        } else {
+          console.error('Error fetching profile:', error);
+          set({ profile: null });
         }
-
-        if (profile) {
-          set({ role: profile.role, profile: profile });
-        }
+      } else {
+        set({ profile });
       }
     } catch (error) {
-      console.error('Error initializing auth:', error);
-    } finally {
-      set({ loading: false });
-    }
-
-    if (import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY) {
-      supabase.auth.onAuthStateChange(async (event, session) => {
-        set({ session, user: session?.user || null });
-        if (session?.user) {
-          let { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .maybeSingle();
-            
-          if (!profile && session.user.email) {
-            const email = session.user.email;
-            const username = email.split('@')[0];
-            const newProfile = {
-                id: session.user.id,
-                email: email,
-                username: username,
-                role: 'Pending User',
-                status: 'Pending'
-            };
-            const { data: insertedProfile, error: insertError } = await supabase.from('profiles').insert([newProfile]).select().single();
-            if (!insertError) {
-                profile = insertedProfile;
-            }
-          }
-
-          set({ role: profile?.role || null, profile: profile || null });
-        } else {
-          set({ role: null, profile: null });
-        }
-      });
+      console.error('Error in fetchProfile:', error);
+      set({ profile: null });
     }
   },
+
+  initialize: () => {
+    if (get().initialized) return;
+
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.warn('Supabase auth error:', error.message);
+      }
+      const user = session?.user ?? null;
+      set({ user });
+      
+      if (user) {
+        get().fetchProfile(user).finally(() => {
+          set({ loading: false, initialized: true });
+        });
+      } else {
+        set({ loading: false, initialized: true });
+      }
+    }).catch(err => {
+      console.warn('Failed to reach Supabase. Check your configuration.', err);
+      set({ loading: false, initialized: true });
+    });
+
+    supabase.auth.onAuthStateChange(async (_event, session) => {
+      const user = session?.user ?? null;
+      set({ user });
+      
+      if (user) {
+        await get().fetchProfile(user);
+      } else {
+        set({ profile: null });
+      }
+    });
+  },
+
   signOut: async () => {
     await supabase.auth.signOut();
-    set({ user: null, session: null, role: null, profile: null });
+    set({ user: null, profile: null });
   },
 }));

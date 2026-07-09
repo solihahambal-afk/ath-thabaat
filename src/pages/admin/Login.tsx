@@ -1,132 +1,116 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { supabase } from '../../lib/supabase';
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { BookOpen, UserCircle, Lock, Mail, Eye, EyeOff } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
-import { Lock, Mail } from 'lucide-react';
-import LoadingScreen from '../../components/LoadingScreen';
+import { supabase } from '../../lib/supabase';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
   const navigate = useNavigate();
-  const location = useLocation();
-  const { user, loading: authLoading, initialize } = useAuthStore();
-
-  const from = location.state?.from?.pathname || '/admin';
-
-  useEffect(() => {
-    initialize();
-  }, [initialize]);
-
-  useEffect(() => {
-    if (user && !authLoading) {
-      navigate(from, { replace: true });
-    }
-  }, [user, authLoading, navigate, from]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     setIsSubmitting(true);
-
-    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-      setError('Database configuration is missing. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Settings > Environment Variables.');
-      setIsSubmitting(false);
-      return;
-    }
+    setError(null);
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-
       if (error) throw error;
-      
       // User will be redirected by the useEffect listening to auth changes
     } catch (err: any) {
-      const errorMessage = err?.message || (typeof err === 'string' ? err : 'Failed to sign in. Please check your credentials and try again.');
-      setError(errorMessage === '{}' ? 'Invalid login credentials' : errorMessage);
-      setIsSubmitting(false);
+      let errorMessage = 'Failed to sign in. Please check your credentials and try again.';
+      if (err.message) {
+        if (err.message === 'Failed to fetch') {
+          errorMessage = 'Unable to connect to the server. Please check if Supabase is properly configured in the Settings menu.';
+        } else {
+          errorMessage = err.message;
+        }
+      }
+      setError(errorMessage);
+    } finally {
+        setIsSubmitting(false);
     }
   };
 
-  if (authLoading || (isSubmitting && !error)) {
-    return <LoadingScreen message="Authenticating..." />;
-  }
-
-
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-neutral-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <img
-            className="h-16 w-auto rounded-full shadow-md"
-            src="/logo.jpg"
-            alt="Ath-Thabaat"
-          />
+          <div className="h-16 w-16 bg-neutral-900 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6">
+            <BookOpen className="h-8 w-8 text-white transform rotate-6" />
+          </div>
         </div>
-        <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900 font-serif">
-          Portal Login
+        <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-neutral-900">
+          Admin Portal
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Don't have an account?{' '}
-          <a href="/admin/register" className="font-semibold text-primary-600 hover:text-primary-500">
-            Sign up
-          </a>
+        <p className="mt-2 text-center text-sm text-neutral-600">
+          Sign in to access the dashboard
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-100">
+        <div className="bg-white py-8 px-4 shadow-xl shadow-neutral-200/50 sm:rounded-2xl sm:px-10 border border-neutral-100">
           <form className="space-y-6" onSubmit={handleLogin}>
             {error && (
-              <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm">
-                {error}
+              <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-4 text-sm flex items-start">
+                <span className="block sm:inline">{error}</span>
               </div>
             )}
             
             <div>
-              <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
-                Email address
+              <label className="block text-sm font-medium text-neutral-700">
+                Email
               </label>
-              <div className="mt-2 relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <Mail className="h-5 w-5 text-gray-400" aria-hidden="true" />
+              <div className="mt-2 relative rounded-xl shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail className="h-5 w-5 text-neutral-400" />
                 </div>
                 <input
-                  id="email"
-                  name="email"
                   type="email"
-                  autoComplete="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full rounded-md border-0 py-2.5 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
+                  className="block w-full pl-10 pr-3 py-3 border border-neutral-200 rounded-xl focus:ring-neutral-900 focus:border-neutral-900 sm:text-sm transition-colors bg-neutral-50 focus:bg-white"
+                  placeholder="admin@example.com"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
+              <label className="block text-sm font-medium text-neutral-700">
                 Password
               </label>
-              <div className="mt-2 relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <Lock className="h-5 w-5 text-gray-400" aria-hidden="true" />
+              <div className="mt-2 relative rounded-xl shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-neutral-400" />
                 </div>
                 <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
+                  type={showPassword ? "text" : "password"}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full rounded-md border-0 py-2.5 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
+                  className="block w-full pl-10 pr-10 py-3 border border-neutral-200 rounded-xl focus:ring-neutral-900 focus:border-neutral-900 sm:text-sm transition-colors bg-neutral-50 focus:bg-white"
+                  placeholder="••••••••"
                 />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5 text-neutral-400 hover:text-neutral-600" />
+                  ) : (
+                    <Eye className="h-5 w-5 text-neutral-400 hover:text-neutral-600" />
+                  )}
+                </button>
               </div>
             </div>
 
@@ -136,17 +120,17 @@ export default function Login() {
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-600"
+                  className="h-4 w-4 text-neutral-900 focus:ring-neutral-900 border-neutral-300 rounded"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-neutral-700">
                   Remember me
                 </label>
               </div>
 
-              <div className="text-sm leading-6">
-                <a href="/admin/forgot-password" className="font-semibold text-primary-600 hover:text-primary-500">
-                  Forgot password?
-                </a>
+              <div className="text-sm">
+                <Link to="/admin/forgot-password" className="font-medium text-neutral-600 hover:text-neutral-900">
+                  Forgot your password?
+                </Link>
               </div>
             </div>
 
@@ -154,12 +138,32 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex w-full justify-center rounded-md bg-primary-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-neutral-900 hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {isSubmitting ? 'Signing in...' : 'Sign in'}
               </button>
             </div>
           </form>
+
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-neutral-200" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-neutral-500">Don't have an account?</span>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <Link
+                to="/admin/register"
+                className="w-full flex justify-center py-3 px-4 border border-neutral-200 rounded-xl shadow-sm text-sm font-medium text-neutral-700 bg-white hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-900 transition-colors"
+              >
+                Create an account
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>

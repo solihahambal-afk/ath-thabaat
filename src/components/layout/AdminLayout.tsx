@@ -18,7 +18,8 @@ import { useState, useEffect } from 'react';
 import { cn } from '../../lib/utils';
 
 export default function AdminLayout() {
-  const { user, profile, role, loading, signOut, initialize } = useAuthStore();
+  const { user, profile, loading, signOut, initialize } = useAuthStore();
+  const role = profile?.role;
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 

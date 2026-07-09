@@ -1,20 +1,27 @@
 import { supabase } from './supabase';
-import { useAuthStore } from '../store/authStore';
 
-export const logActivity = async (action: string, details: string) => {
+export async function logActivity(action: string, details?: string) {
   try {
-    const { user, profile } = useAuthStore.getState();
-    if (!user || !profile) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
-    await supabase.from('activity_logs').insert([{
+    // Get client IP if possible, or null
+    let ip_address = null;
+    try {
+      const response = await fetch('https://api.ipify.org?format=json');
+      const data = await response.json();
+      ip_address = data.ip;
+    } catch (e) {
+      console.warn('Could not fetch IP');
+    }
+
+    await supabase.from('activity_logs').insert({
       user_id: user.id,
-      user_name: profile.full_name || profile.username || user.email?.split('@')[0] || 'Unknown',
       action,
       details,
-      created_at: new Date().toISOString()
-    }]);
+      ip_address
+    });
   } catch (error) {
-    console.error('Failed to log activity:', error);
-    // Fail silently so it doesn't break app flow if table is missing
+    console.error('Error logging activity:', error);
   }
-};
+}

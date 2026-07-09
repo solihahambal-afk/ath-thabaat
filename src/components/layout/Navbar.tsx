@@ -47,7 +47,8 @@ export default function Navbar() {
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
   const [desktopDropdownOpen, setDesktopDropdownOpen] = useState(false);
   const location = useLocation();
-  const { user, profile, role, signOut, initialize } = useAuthStore();
+  const { user, profile, signOut, initialize } = useAuthStore();
+  const role = profile?.role;
 
   useEffect(() => {
     initialize();

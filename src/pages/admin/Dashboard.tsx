@@ -87,18 +87,37 @@ const ParentDashboard = () => (
   </div>
 );
 
-const PendingUserDashboard = () => (
-  <div className="bg-white shadow sm:rounded-lg">
+const PendingUserDashboard = ({ profile }: { profile: any }) => (
+  <div className="bg-white shadow sm:rounded-lg border border-gray-200">
     <div className="px-4 py-5 sm:p-6">
-      <h3 className="text-base font-semibold leading-6 text-gray-900">Account Status: Pending Approval</h3>
-      <div className="mt-2 max-w-xl text-sm text-gray-500">
-        <p>Your account has been created successfully and is currently awaiting approval by the Super Admin.</p>
-        <p className="mt-2">You will gain access to your assigned dashboard once your role has been approved.</p>
+      <h3 className="text-lg font-semibold leading-6 text-gray-900">Welcome to the Portal</h3>
+      <div className="mt-4 max-w-xl text-sm text-gray-600 space-y-4">
+        <p className="flex items-center gap-2">
+          <span className="font-medium text-gray-900">Account Status:</span>
+          <span className="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20">
+            Pending Approval
+          </span>
+        </p>
+        <p className="flex items-center gap-2">
+          <span className="font-medium text-gray-900">Assigned Role:</span>
+          <span className="text-gray-700">{profile?.role || 'Pending User'}</span>
+        </p>
+        {profile?.created_at && (
+          <p className="flex items-center gap-2">
+            <span className="font-medium text-gray-900">Registration Date:</span>
+            <span className="text-gray-700">{new Date(profile.created_at).toLocaleDateString()}</span>
+          </p>
+        )}
+        <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mt-4 rounded-r-md">
+          <p className="text-blue-700">
+            Your account has been created successfully. You will gain access to your assigned dashboard modules once your role has been approved by the Super Admin.
+          </p>
+        </div>
       </div>
-      <div className="mt-5">
+      <div className="mt-6 flex items-center gap-4">
         <Link
           to="/admin/profile"
-          className="inline-flex items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
+          className="inline-flex items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
         >
           Edit Profile
         </Link>
@@ -108,7 +127,8 @@ const PendingUserDashboard = () => (
 );
 
 export default function Dashboard() {
-  const { user, profile, role } = useAuthStore();
+  const { user, profile } = useAuthStore();
+  const role = profile?.role;
   const displayName = profile?.full_name || profile?.username || user?.email?.split('@')[0];
 
   const renderDashboard = () => {
@@ -119,8 +139,8 @@ export default function Dashboard() {
       case 'Teacher / Instructor': return <TeacherDashboard />;
       case 'Student': return <StudentDashboard />;
       case 'Parent': return <ParentDashboard />;
-      case 'Pending User': return <PendingUserDashboard />;
-      default: return <PendingUserDashboard />;
+      case 'Pending User': return <PendingUserDashboard profile={profile} />;
+      default: return <PendingUserDashboard profile={profile} />;
     }
   };
 
